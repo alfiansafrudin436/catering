@@ -2,7 +2,7 @@ import { Container, PhotoPlaceholder, WhatsAppButton } from '@/components'
 import { Button } from '@/components/ui/button'
 import type { BrandContent, HeroContent, ServiceFact } from '@/types'
 
-import { GENERAL_MESSAGE } from '../helper'
+import { GENERAL_MESSAGE } from '../../helper'
 
 type HeroSectionProps = {
   brand: BrandContent

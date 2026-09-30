@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import type { LandingContentInput } from '@/lib/validation'
 
-import { SectionCard } from './SectionCard'
+import { SectionCard } from '../SectionCard'
 
 type CtaFieldsProps = {
   form: UseFormReturn<LandingContentInput>

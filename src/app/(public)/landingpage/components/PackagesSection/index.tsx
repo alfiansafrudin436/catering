@@ -1,7 +1,7 @@
 import { Container, PhotoPlaceholder, WhatsAppButton } from '@/components'
 import type { PackagesContent } from '@/types'
 
-import { buildPackageMessage } from '../helper'
+import { buildPackageMessage } from '../../helper'
 
 type PackagesSectionProps = {
   packages: PackagesContent

@@ -4,7 +4,7 @@ import { Field } from '@/components/form'
 import { Input } from '@/components/ui/input'
 import type { LandingContentInput } from '@/lib/validation'
 
-import { SectionCard } from './SectionCard'
+import { SectionCard } from '../SectionCard'
 
 type BrandFieldsProps = {
   form: UseFormReturn<LandingContentInput>

@@ -8,9 +8,9 @@ import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import type { LandingContentInput } from '@/lib/validation'
 
-import { createHighlight, HIGHLIGHT_ICON_OPTIONS } from '../helper'
-import { RepeatableItem } from './RepeatableItem'
-import { SectionCard } from './SectionCard'
+import { createHighlight, HIGHLIGHT_ICON_OPTIONS } from '../../helper'
+import { RepeatableItem } from '../RepeatableItem'
+import { SectionCard } from '../SectionCard'
 
 type HighlightsFieldsProps = {
   form: UseFormReturn<LandingContentInput>

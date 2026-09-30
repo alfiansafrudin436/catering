@@ -1,7 +1,7 @@
 import { Container, WhatsAppButton } from '@/components'
 import type { CtaContent } from '@/types'
 
-import { GENERAL_MESSAGE } from '../helper'
+import { GENERAL_MESSAGE } from '../../helper'
 
 type CtaSectionProps = {
   cta: CtaContent

@@ -7,9 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import type { LandingContentInput } from '@/lib/validation'
 
-import { createTestimonial } from '../helper'
-import { RepeatableItem } from './RepeatableItem'
-import { SectionCard } from './SectionCard'
+import { createTestimonial } from '../../helper'
+import { RepeatableItem } from '../RepeatableItem'
+import { SectionCard } from '../SectionCard'
 
 type TestimonialsFieldsProps = {
   form: UseFormReturn<LandingContentInput>

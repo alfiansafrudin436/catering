@@ -6,7 +6,7 @@ import { Container, WhatsAppButton } from '@/components'
 import { useLandingContent } from '@/hooks/use-landing-content'
 import { NAV_ITEMS } from '@/lib/landing-content'
 
-import { GENERAL_MESSAGE } from '../landingpage/helper'
+import { GENERAL_MESSAGE } from '../../landingpage/helper'
 
 export function SiteHeader() {
   const { brand } = useLandingContent()
