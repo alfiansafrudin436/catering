@@ -13,7 +13,12 @@ import { useAuthStore } from '@/store/auth-store'
 import { useLandingContentStore } from '@/store/landing-content-store'
 import type { LandingContent } from '@/types'
 
-import { renumberSteps } from './helper'
+import {
+  findFirstSectionWithErrors,
+  isAdminSectionId,
+  renumberSteps,
+  type AdminSectionId,
+} from './helper'
 
 type SaveState = { status: 'idle' } | { status: 'synced' } | { status: 'local'; reason: string }
 
@@ -27,6 +32,7 @@ export function useAdminPage() {
   const resetContent = useLandingContentStore((state) => state.resetContent)
 
   const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' })
+  const [activeSection, setActiveSection] = useState<AdminSectionId>('brand')
 
   const form = useForm<LandingContentInput>({
     resolver: zodResolver(landingContentSchema),
@@ -47,28 +53,37 @@ export function useAdminPage() {
 
   const mutation = useMutation({ mutationFn: updateLandingContent })
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    const payload: LandingContent = {
-      ...values,
-      howToOrder: { ...values.howToOrder, steps: renumberSteps(values.howToOrder.steps) },
-    }
+  const onSubmit = form.handleSubmit(
+    async (values) => {
+      const payload: LandingContent = {
+        ...values,
+        howToOrder: { ...values.howToOrder, steps: renumberSteps(values.howToOrder.steps) },
+      }
 
-    // Simpan lokal lebih dulu supaya preview selalu mencerminkan isi form.
-    setContent(payload)
-    form.reset(payload)
+      // Simpan lokal lebih dulu supaya preview selalu mencerminkan isi form.
+      setContent(payload)
+      form.reset(payload)
 
-    try {
-      const saved = await mutation.mutateAsync(payload)
-      setContent(saved)
-      form.reset(saved)
-      setSaveState({ status: 'synced' })
-    } catch (error) {
-      setSaveState({
-        status: 'local',
-        reason: error instanceof Error ? error.message : 'Backend tidak merespons.',
-      })
-    }
-  })
+      try {
+        const saved = await mutation.mutateAsync(payload)
+        setContent(saved)
+        form.reset(saved)
+        setSaveState({ status: 'synced' })
+      } catch (error) {
+        setSaveState({
+          status: 'local',
+          reason: error instanceof Error ? error.message : 'Backend tidak merespons.',
+        })
+      }
+    },
+    (errors) => {
+      // Hanya satu section yang dirender, jadi error bisa berada di panel yang
+      // sedang tersembunyi. Pindahkan pengguna ke sana supaya tidak terlihat
+      // seolah tombol Simpan tidak berfungsi.
+      const target = findFirstSectionWithErrors(Object.keys(errors))
+      if (target) setActiveSection(target)
+    },
+  )
 
   const onReset = () => {
     resetContent()
@@ -81,12 +96,18 @@ export function useAdminPage() {
     router.replace('/login')
   }
 
+  // Key error tingkat atas sudah senama dengan id section.
+  const sectionsWithErrors = Object.keys(form.formState.errors).filter(isAdminSectionId)
+
   return {
     form,
     fieldArrays: { facts, highlights, packages, steps, testimonials },
     onSubmit,
     onReset,
     onLogout,
+    activeSection,
+    setActiveSection,
+    sectionsWithErrors,
     isSaving: mutation.isPending,
     isDirty: form.formState.isDirty,
     saveState,

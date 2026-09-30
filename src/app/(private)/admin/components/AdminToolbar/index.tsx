@@ -24,15 +24,16 @@ export function AdminToolbar({ isSaving, isDirty, onReset, onLogout }: AdminTool
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onReset}>
+        {/* Label teks disembunyikan di layar sempit supaya empat tombol tetap muat. */}
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Button type="button" variant="ghost" size="sm" onClick={onReset} aria-label="Reset">
             <RotateCcw className="size-4" aria-hidden />
-            Reset
+            <span className="hidden sm:inline">Reset</span>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href="/landingpage" target="_blank">
+            <Link href="/landingpage" target="_blank" aria-label="Lihat halaman">
               <ExternalLink className="size-4" aria-hidden />
-              Lihat halaman
+              <span className="hidden sm:inline">Lihat halaman</span>
             </Link>
           </Button>
           <Button type="submit" size="sm" disabled={isSaving}>

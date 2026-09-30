@@ -6,6 +6,35 @@ import type {
   Testimonial,
 } from '@/types'
 
+/**
+ * Id section admin sengaja sama persis dengan key tingkat atas LandingContent,
+ * sehingga key error dari React Hook Form langsung menunjuk ke section-nya.
+ */
+export type AdminSectionId =
+  'brand' | 'hero' | 'facts' | 'highlights' | 'packages' | 'howToOrder' | 'testimonials' | 'cta'
+
+export const ADMIN_SECTIONS: { id: AdminSectionId; label: string }[] = [
+  { id: 'brand', label: 'Brand & Kontak' },
+  { id: 'hero', label: 'Hero' },
+  { id: 'facts', label: 'Fakta Layanan' },
+  { id: 'highlights', label: 'Keunggulan' },
+  { id: 'packages', label: 'Paket' },
+  { id: 'howToOrder', label: 'Cara Pesan' },
+  { id: 'testimonials', label: 'Ulasan' },
+  { id: 'cta', label: 'CTA Penutup' },
+]
+
+const SECTION_IDS = ADMIN_SECTIONS.map((section) => section.id)
+
+export function isAdminSectionId(value: string): value is AdminSectionId {
+  return SECTION_IDS.includes(value as AdminSectionId)
+}
+
+/** Section bermasalah pertama menurut urutan tampilan, bukan urutan key error. */
+export function findFirstSectionWithErrors(errorKeys: string[]): AdminSectionId | null {
+  return SECTION_IDS.find((id) => errorKeys.includes(id)) ?? null
+}
+
 /** Ubah teks bebas menjadi slug/id yang aman dipakai sebagai key. */
 export function slugify(value: string) {
   return value
