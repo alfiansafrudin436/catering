@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ExternalLink, RotateCcw } from 'lucide-react'
+import { ExternalLink, LogOut, RotateCcw } from 'lucide-react'
 
 import { Container } from '@/components'
 import { Button } from '@/components/ui/button'
@@ -8,9 +8,10 @@ type AdminToolbarProps = {
   isSaving: boolean
   isDirty: boolean
   onReset: () => void
+  onLogout: () => void
 }
 
-export function AdminToolbar({ isSaving, isDirty, onReset }: AdminToolbarProps) {
+export function AdminToolbar({ isSaving, isDirty, onReset, onLogout }: AdminToolbarProps) {
   return (
     <div className="border-border bg-background/90 sticky top-0 z-50 border-b backdrop-blur">
       <Container className="flex h-auto flex-wrap items-center justify-between gap-3 py-3 md:h-20 md:flex-nowrap md:py-0">
@@ -36,6 +37,16 @@ export function AdminToolbar({ isSaving, isDirty, onReset }: AdminToolbarProps) 
           </Button>
           <Button type="submit" size="sm" disabled={isSaving}>
             {isSaving ? 'Menyimpan...' : 'Simpan'}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onLogout}
+            className="px-2"
+            aria-label="Keluar"
+          >
+            <LogOut className="size-4" aria-hidden />
           </Button>
         </div>
       </Container>

@@ -1,17 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-type AuthUser = {
-  id: string
-  name: string
-  email: string
-}
+import type { AuthUser } from '@/types'
 
 type AuthState = {
   token: string | null
   user: AuthUser | null
+  /** Sesi tersimpan baru terbaca setelah rehydrate dari localStorage. */
+  hasHydrated: boolean
   setSession: (token: string, user: AuthUser) => void
   logout: () => void
+  setHasHydrated: (value: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -19,9 +18,15 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       token: null,
       user: null,
+      hasHydrated: false,
       setSession: (token, user) => set({ token, user }),
       logout: () => set({ token: null, user: null }),
+      setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
-    { name: 'catering-auth' },
+    {
+      name: 'catering-auth',
+      partialize: (state) => ({ token: state.token, user: state.user }),
+      onRehydrateStorage: () => (state) => state?.setHasHydrated(true),
+    },
   ),
 )

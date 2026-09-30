@@ -13,11 +13,12 @@ import { TestimonialsFields } from './components/TestimonialsFields'
 import { useAdminPage } from './hooks'
 
 export default function AdminPage() {
-  const { form, fieldArrays, onSubmit, onReset, isSaving, isDirty, saveState } = useAdminPage()
+  const { form, fieldArrays, onSubmit, onReset, onLogout, isSaving, isDirty, saveState } =
+    useAdminPage()
 
   return (
     <form onSubmit={onSubmit}>
-      <AdminToolbar isSaving={isSaving} isDirty={isDirty} onReset={onReset} />
+      <AdminToolbar isSaving={isSaving} isDirty={isDirty} onReset={onReset} onLogout={onLogout} />
 
       <Container className="flex flex-col gap-5 py-8 md:py-10">
         {saveState.status === 'local' ? (

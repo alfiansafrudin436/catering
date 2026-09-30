@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
@@ -8,6 +9,7 @@ import { useMutation } from '@tanstack/react-query'
 import { DEFAULT_LANDING_CONTENT } from '@/lib/landing-content'
 import { landingContentSchema, type LandingContentInput } from '@/lib/validation'
 import { updateLandingContent } from '@/services/content.service'
+import { useAuthStore } from '@/store/auth-store'
 import { useLandingContentStore } from '@/store/landing-content-store'
 import type { LandingContent } from '@/types'
 
@@ -17,6 +19,8 @@ type SaveState = { status: 'idle' } | { status: 'synced' } | { status: 'local'; 
 
 /** Logic halaman admin pengelolaan konten landing page. */
 export function useAdminPage() {
+  const router = useRouter()
+  const logout = useAuthStore((state) => state.logout)
   const storedContent = useLandingContentStore((state) => state.content)
   const hasHydrated = useLandingContentStore((state) => state.hasHydrated)
   const setContent = useLandingContentStore((state) => state.setContent)
@@ -72,11 +76,17 @@ export function useAdminPage() {
     setSaveState({ status: 'idle' })
   }
 
+  const onLogout = () => {
+    logout()
+    router.replace('/login')
+  }
+
   return {
     form,
     fieldArrays: { facts, highlights, packages, steps, testimonials },
     onSubmit,
     onReset,
+    onLogout,
     isSaving: mutation.isPending,
     isDirty: form.formState.isDirty,
     saveState,

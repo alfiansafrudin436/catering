@@ -5,6 +5,17 @@ export type ApiEnvelope<T> = {
   statusCode: number
 }
 
+export type AuthUser = {
+  id: string
+  name: string
+  email: string
+}
+
+export type LoginResult = {
+  token: string
+  user: AuthUser
+}
+
 export type CateringPackage = {
   slug: string
   name: string

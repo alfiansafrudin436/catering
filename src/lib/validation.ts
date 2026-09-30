@@ -2,6 +2,13 @@ import { z } from 'zod'
 
 const required = (label: string) => z.string().trim().min(1, `${label} wajib diisi`)
 
+export const loginSchema = z.object({
+  email: z.string().trim().min(1, 'Email wajib diisi').pipe(z.email('Format email tidak valid')),
+  password: z.string().min(1, 'Kata sandi wajib diisi'),
+})
+
+export type LoginInput = z.infer<typeof loginSchema>
+
 export const orderInquirySchema = z.object({
   name: z.string().min(2, 'Nama minimal 2 karakter'),
   phone: z.string().min(8, 'Nomor WhatsApp tidak valid'),
