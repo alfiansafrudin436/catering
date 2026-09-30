@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+
+:root {
+  /* Surfaces */
+  --background: #fbf6ee;
+  --foreground: #221f1a;
+  --surface: #fffdf9;
+  --surface-muted: #f2e7d3;
+  --surface-sand: #f0e6d2;
+
+  /* Brand */
+  --primary: #bf4722;
+  --primary-foreground: #fdf6ee;
+  --secondary: #3a5733;
+  --secondary-foreground: #f4f0e4;
+  --accent: #f2b492;
+
+  /* Support */
+  --muted: #f5ecdd;
+  --muted-foreground: #6f6659;
+  --border: #e6d9c2;
+  --ring: #bf4722;
+
+  --radius: 0.875rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-sand: var(--surface-sand);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  --radius-card: var(--radius);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Placeholder bergaris diagonal untuk slot foto yang belum diisi. */
+.photo-placeholder {
+  background-color: var(--surface-sand);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.55) 0px,
+    rgba(255, 255, 255, 0.55) 7px,
+    transparent 7px,
+    transparent 15px
+  );
+}
