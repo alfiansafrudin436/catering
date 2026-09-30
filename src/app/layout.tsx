@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google'
 
 import { Providers } from '@/app/providers'
-import { BRAND_NAME } from '@/lib/config'
+import { DEFAULT_LANDING_CONTENT } from '@/lib/landing-content'
+import { getLandingContentFromServer } from '@/services/content.server'
 
 import './globals.css'
 
@@ -17,10 +18,14 @@ const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
 })
 
-export const metadata: Metadata = {
-  title: `${BRAND_NAME} — Catering untuk setiap acara`,
-  description:
-    'Catering harian, kantor, dan acara keluarga. Pilih paket, kirim pesan lewat WhatsApp, lalu kami siapkan dan antar ke tempatmu.',
+/** Judul dan deskripsi ikut konten yang diatur lewat halaman admin. */
+export async function generateMetadata(): Promise<Metadata> {
+  const content = (await getLandingContentFromServer()) ?? DEFAULT_LANDING_CONTENT
+
+  return {
+    title: `${content.brand.name} — Catering untuk setiap acara`,
+    description: content.hero.description,
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

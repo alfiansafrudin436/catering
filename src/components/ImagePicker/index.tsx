@@ -5,18 +5,15 @@ import { ImageUp, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { ACCEPTED_IMAGE_TYPES, fileToCompressedDataUrl } from '@/lib/image'
+import { ACCEPTED_IMAGE_TYPES } from '@/lib/image'
 import { cn } from '@/lib/utils'
 
 type ImagePickerProps = {
   label: string
   value?: string
   onChange: (value: string) => void
-  /**
-   * Bila diberikan, berkas diunggah lewat fungsi ini dan URL hasilnya disimpan.
-   * Tanpa itu, gambar disimpan sebagai data URL terkompresi.
-   */
-  onUpload?: (file: File) => Promise<string>
+  /** Mengunggah berkas dan mengembalikan URL yang disimpan ke konten. */
+  onUpload: (file: File) => Promise<string>
   hint?: string
   className?: string
 }
@@ -42,7 +39,7 @@ export function ImagePicker({
     setIsProcessing(true)
 
     try {
-      onChange(onUpload ? await onUpload(file) : await fileToCompressedDataUrl(file))
+      onChange(await onUpload(file))
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Gagal memproses gambar.')
     } finally {
@@ -88,13 +85,7 @@ export function ImagePicker({
               onClick={() => inputRef.current?.click()}
             >
               <ImageUp className="size-4" aria-hidden />
-              {isProcessing
-                ? onUpload
-                  ? 'Mengunggah...'
-                  : 'Memproses...'
-                : value
-                  ? 'Ganti gambar'
-                  : 'Pilih gambar'}
+              {isProcessing ? 'Mengunggah...' : value ? 'Ganti gambar' : 'Pilih gambar'}
             </Button>
             {value ? (
               <Button

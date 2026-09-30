@@ -1,30 +1,18 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
 import { isSupabaseConfigured, SUPABASE_ANON_KEY, SUPABASE_URL } from './config'
 
 /**
- * Client Supabase untuk Server Component dan Route Handler.
+ * Client Supabase untuk pembacaan publik di server.
  *
- * Sesi dibaca dari cookie, bukan localStorage, supaya server ikut mengenali
- * pengguna yang sudah masuk.
+ * Sengaja tanpa cookie: hanya dipakai membaca data yang boleh dilihat siapa
+ * saja, seperti judul halaman. Tanpa cookie, rute yang memakainya tidak
+ * dipaksa menjadi dinamis.
  */
-export async function getSupabaseServerClient() {
+export function getSupabasePublicClient() {
   if (!isSupabaseConfigured()) return null
 
-  const cookieStore = await cookies()
-
-  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (cookiesToSet) => {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
-        } catch {
-          // Server Component tidak boleh menulis cookie. Penyegaran token
-          // ditangani middleware, jadi kegagalan di sini aman diabaikan.
-        }
-      },
-    },
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false },
   })
 }

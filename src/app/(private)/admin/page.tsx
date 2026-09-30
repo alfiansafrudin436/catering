@@ -26,6 +26,7 @@ export default function AdminPage() {
     activeSection,
     setActiveSection,
     sectionsWithErrors,
+    isLoading,
     isSaving,
     isDirty,
     saveState,
@@ -58,19 +59,25 @@ export default function AdminPage() {
         />
 
         <div className="flex min-w-0 flex-col gap-5">
-          {saveState.status === 'local' ? (
-            <p className="border-border bg-surface-muted rounded-card border p-4 text-sm">
-              Perubahan tersimpan di browser ini, tetapi belum terkirim ke backend:{' '}
+          {saveState.status === 'error' ? (
+            <p className="border-primary/40 bg-surface-muted rounded-card border p-4 text-sm">
+              Gagal menyimpan ke Supabase:{' '}
               <span className="text-muted-foreground">{saveState.reason}</span>
             </p>
           ) : null}
-          {saveState.status === 'synced' ? (
+          {saveState.status === 'saved' ? (
             <p className="border-border bg-surface-muted rounded-card border p-4 text-sm">
-              Perubahan tersimpan dan tersinkron dengan backend.
+              Perubahan tersimpan.
             </p>
           ) : null}
 
-          {panels[activeSection]}
+          {isLoading ? (
+            <p className="text-muted-foreground rounded-card border-border border p-6 text-sm">
+              Memuat konten...
+            </p>
+          ) : (
+            panels[activeSection]
+          )}
         </div>
       </Container>
     </form>

@@ -12,7 +12,7 @@ type LoginCardProps = {
   onSubmit: (event: React.FormEvent) => void
   errorMessage: string | null
   isSubmitting: boolean
-  isLocalMode: boolean
+  isConfigured: boolean
 }
 
 export function LoginCard({
@@ -20,7 +20,7 @@ export function LoginCard({
   onSubmit,
   errorMessage,
   isSubmitting,
-  isLocalMode,
+  isConfigured,
 }: LoginCardProps) {
   const { register, formState } = form
 
@@ -56,12 +56,13 @@ export function LoginCard({
         {isSubmitting ? 'Memproses...' : 'Masuk'}
       </Button>
 
-      {isLocalMode ? (
+      {isConfigured ? null : (
         <p className="text-muted-foreground mt-4 text-xs leading-relaxed">
-          Mode tanpa backend aktif: kredensial dibaca dari <code>.env.local</code> dan diperiksa di
-          browser, jadi ini bukan pengamanan sungguhan.
+          Supabase belum dikonfigurasi. Isi <code>NEXT_PUBLIC_SUPABASE_URL</code> dan{' '}
+          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> di <code>.env.local</code>, lalu jalankan ulang
+          server.
         </p>
-      ) : null}
+      )}
     </form>
   )
 }

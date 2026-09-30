@@ -6,14 +6,24 @@ import { isSupabaseConfigured, SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/sup
 /**
  * Menyegarkan sesi Supabase dan menjaga /admin di sisi server.
  *
- * Ini perlindungan yang sebenarnya: permintaan tanpa sesi valid tidak pernah
- * sampai ke halaman admin. AdminGuard di klien hanya pelengkap tampilan.
+ * Ini satu-satunya penjagaan halaman admin, dan berjalan di server: permintaan
+ * tanpa sesi valid tidak pernah sampai ke halamannya, termasuk pada navigasi
+ * client-side karena middleware ikut berjalan untuk permintaan RSC.
  *
- * Selama Supabase belum dikonfigurasi, middleware tidak menahan apa pun supaya
- * mode lokal tetap bisa dipakai.
+ * Bila Supabase belum dikonfigurasi, sesi tidak bisa diverifikasi sama sekali,
+ * jadi akses ditolak. Gagal dalam keadaan tertutup, bukan terbuka.
  */
 export async function middleware(request: NextRequest) {
-  if (!isSupabaseConfigured()) return NextResponse.next()
+  if (!isSupabaseConfigured()) {
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/login'
+
+      return NextResponse.redirect(loginUrl)
+    }
+
+    return NextResponse.next()
+  }
 
   let response = NextResponse.next({ request })
 

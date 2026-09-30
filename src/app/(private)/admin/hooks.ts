@@ -9,13 +9,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LANDING_CONTENT_KEY, useLandingContentQuery } from '@/hooks/use-landing-content'
 import { fileToCompressedBlob } from '@/lib/image'
 import { DEFAULT_LANDING_CONTENT } from '@/lib/landing-content'
-import { isSupabaseConfigured } from '@/lib/supabase/config'
 import { landingContentSchema, type LandingContentInput } from '@/lib/validation'
-import { updateLandingContent } from '@/services/content.service'
 import { signOut } from '@/services/auth.service'
+import { updateLandingContent } from '@/services/content.service'
 import { uploadPackagePhoto } from '@/services/storage.service'
-import { useAuthStore } from '@/store/auth-store'
-import { useLandingContentStore } from '@/store/landing-content-store'
 import type { LandingContent } from '@/types'
 
 import {
@@ -25,19 +22,12 @@ import {
   type AdminSectionId,
 } from './helper'
 
-type SaveState = { status: 'idle' } | { status: 'synced' } | { status: 'local'; reason: string }
+type SaveState = { status: 'idle' } | { status: 'saved' } | { status: 'error'; reason: string }
 
 /** Logic halaman admin pengelolaan konten landing page. */
 export function useAdminPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const usesSupabase = isSupabaseConfigured()
-
-  const logout = useAuthStore((state) => state.logout)
-  const storedContent = useLandingContentStore((state) => state.content)
-  const hasHydrated = useLandingContentStore((state) => state.hasHydrated)
-  const setContent = useLandingContentStore((state) => state.setContent)
-  const resetContent = useLandingContentStore((state) => state.resetContent)
 
   const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' })
   const [activeSection, setActiveSection] = useState<AdminSectionId>('brand')
@@ -53,14 +43,13 @@ export function useAdminPage() {
   // Isi form sekali saja saat konten pertama tersedia. Tanpa penjaga ini,
   // refetch di tengah pengeditan akan menimpa apa yang sedang diketik.
   const hasSeededRef = useRef(false)
-  const isContentReady = usesSupabase ? !contentQuery.isPending : hasHydrated
 
   useEffect(() => {
-    if (hasSeededRef.current || !isContentReady) return
+    if (hasSeededRef.current || contentQuery.isPending) return
 
     hasSeededRef.current = true
-    form.reset(contentQuery.data ?? storedContent)
-  }, [isContentReady, contentQuery.data, storedContent, form])
+    form.reset(contentQuery.data ?? DEFAULT_LANDING_CONTENT)
+  }, [contentQuery.isPending, contentQuery.data, form])
 
   const facts = useFieldArray({ control: form.control, name: 'facts' })
   const highlights = useFieldArray({ control: form.control, name: 'highlights.items' })
@@ -77,28 +66,16 @@ export function useAdminPage() {
         howToOrder: { ...values.howToOrder, steps: renumberSteps(values.howToOrder.steps) },
       }
 
-      // Simpan lokal lebih dulu supaya pratinjau selalu mencerminkan isi form.
-      setContent(payload)
-      form.reset(payload)
-
-      if (!usesSupabase) {
-        setSaveState({
-          status: 'local',
-          reason: 'Supabase belum dikonfigurasi, jadi konten hanya tersimpan di browser ini.',
-        })
-
-        return
-      }
-
       try {
         const saved = await mutation.mutateAsync(payload)
-        setContent(saved)
         form.reset(saved)
         queryClient.setQueryData(LANDING_CONTENT_KEY, saved)
-        setSaveState({ status: 'synced' })
+        setSaveState({ status: 'saved' })
       } catch (error) {
+        // Form sengaja tidak di-reset supaya isian pengguna tidak hilang saat
+        // penyimpanan gagal dan bisa dicoba lagi.
         setSaveState({
-          status: 'local',
+          status: 'error',
           reason: error instanceof Error ? error.message : 'Supabase tidak merespons.',
         })
       }
@@ -113,22 +90,16 @@ export function useAdminPage() {
   )
 
   const onReset = () => {
-    resetContent()
     form.reset(DEFAULT_LANDING_CONTENT)
     setSaveState({ status: 'idle' })
   }
 
   const onLogout = async () => {
     await signOut()
-    logout()
     router.replace('/login')
     router.refresh()
   }
 
-  /**
-   * Tanpa Supabase, biarkan undefined supaya ImagePicker jatuh ke data URL.
-   * Dengan Supabase, foto dikompresi lalu diunggah dan yang disimpan URL-nya.
-   */
   const onUploadPhoto = useCallback(
     async (file: File) => uploadPackagePhoto(await fileToCompressedBlob(file), file.name),
     [],
@@ -143,10 +114,11 @@ export function useAdminPage() {
     onSubmit,
     onReset,
     onLogout,
-    onUploadPhoto: usesSupabase ? onUploadPhoto : undefined,
+    onUploadPhoto,
     activeSection,
     setActiveSection,
     sectionsWithErrors,
+    isLoading: contentQuery.isPending,
     isSaving: mutation.isPending,
     isDirty: form.formState.isDirty,
     saveState,

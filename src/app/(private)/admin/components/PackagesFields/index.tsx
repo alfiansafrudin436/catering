@@ -15,8 +15,7 @@ import { SectionCard } from '../SectionCard'
 type PackagesFieldsProps = {
   form: UseFormReturn<LandingContentInput>
   packages: UseFieldArrayReturn<LandingContentInput, 'packages.items'>
-  /** Tanpa ini, foto disimpan sebagai data URL alih-alih diunggah. */
-  onUploadPhoto?: (file: File) => Promise<string>
+  onUploadPhoto: (file: File) => Promise<string>
 }
 
 export function PackagesFields({ form, packages, onUploadPhoto }: PackagesFieldsProps) {

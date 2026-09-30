@@ -5,7 +5,8 @@ import { buildWhatsAppLink } from '@/lib/config'
 
 type WhatsAppButtonProps = {
   message: string
-  phone?: string
+  /** Nomor tujuan, selalu berasal dari konten brand. */
+  phone: string
   label?: string
   className?: string
   variant?: ButtonProps['variant']

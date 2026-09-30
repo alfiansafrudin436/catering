@@ -6,7 +6,7 @@ import { LoginCard } from './components/LoginCard'
 import { useLoginPage } from './hooks'
 
 function LoginPageContent() {
-  const { form, onSubmit, errorMessage, isSubmitting, isLocalMode } = useLoginPage()
+  const { form, onSubmit, errorMessage, isSubmitting, isConfigured } = useLoginPage()
 
   return (
     <LoginCard
@@ -14,7 +14,7 @@ function LoginPageContent() {
       onSubmit={onSubmit}
       errorMessage={errorMessage}
       isSubmitting={isSubmitting}
-      isLocalMode={isLocalMode}
+      isConfigured={isConfigured}
     />
   )
 }

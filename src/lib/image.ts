@@ -1,8 +1,4 @@
-/** Batas untuk mode lokal: konten menumpang localStorage yang kuotanya ~5 MB. */
-export const MAX_LOCAL_IMAGE_BYTES = 400 * 1024
-export const MAX_LOCAL_IMAGE_EDGE = 1200
-
-/** Batas untuk unggahan ke Supabase Storage, jauh lebih longgar. */
+/** Batas unggahan ke Supabase Storage. */
 export const MAX_UPLOAD_IMAGE_BYTES = 2 * 1024 * 1024
 export const MAX_UPLOAD_IMAGE_EDGE = 1600
 
@@ -34,13 +30,6 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
   )
 }
 
-/** Perkirakan ukuran byte dari panjang string data URL base64. */
-export function dataUrlBytes(dataUrl: string) {
-  const base64 = dataUrl.split(',')[1] ?? ''
-
-  return Math.ceil((base64.length * 3) / 4)
-}
-
 async function drawToCanvas(file: File, maxEdge: number) {
   if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
     throw new Error('Format harus JPG, PNG, atau WebP.')
@@ -62,19 +51,7 @@ async function drawToCanvas(file: File, maxEdge: number) {
 
 const TOO_LARGE = 'Gambar terlalu besar. Coba pakai foto dengan resolusi lebih kecil.'
 
-/** Data URL JPEG terkompresi, dipakai saat konten disimpan di localStorage. */
-export async function fileToCompressedDataUrl(file: File): Promise<string> {
-  const canvas = await drawToCanvas(file, MAX_LOCAL_IMAGE_EDGE)
-
-  for (const quality of QUALITY_STEPS) {
-    const candidate = canvas.toDataURL('image/jpeg', quality)
-    if (dataUrlBytes(candidate) <= MAX_LOCAL_IMAGE_BYTES) return candidate
-  }
-
-  throw new Error(TOO_LARGE)
-}
-
-/** Blob JPEG terkompresi, dipakai saat foto diunggah ke Supabase Storage. */
+/** Blob JPEG terkompresi, siap diunggah ke Supabase Storage. */
 export async function fileToCompressedBlob(file: File): Promise<Blob> {
   const canvas = await drawToCanvas(file, MAX_UPLOAD_IMAGE_EDGE)
 

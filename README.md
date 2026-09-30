@@ -36,14 +36,13 @@ pengelompokan ini murni penataan folder.
 
 ## Environment
 
-| Variable                        | Keterangan                                                      |
-| ------------------------------- | --------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | URL project Supabase. Kosong = mode lokal                       |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon/publishable key Supabase                                   |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER`   | Nomor wa.me bawaan, dipakai bila konten belum menyetel nomornya |
-| `NEXT_PUBLIC_BRAND_NAME`        | Nama brand bawaan untuk metadata                                |
-| `NEXT_PUBLIC_ADMIN_EMAIL`       | Email admin untuk mode tanpa backend (development saja)         |
-| `NEXT_PUBLIC_ADMIN_PASSWORD`    | Kata sandi admin untuk mode tanpa backend (development saja)    |
+Hanya dua, keduanya wajib. Selebihnya — nama brand, nomor WhatsApp, seluruh teks dan foto —
+diatur lewat `/admin` dan disimpan di Supabase, bukan di environment variable.
+
+| Variable                        | Keterangan                    |
+| ------------------------------- | ----------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | URL project Supabase          |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon/publishable key Supabase |
 
 ## Struktur
 
@@ -66,10 +65,10 @@ src/
 │       ├── login/
 │       │   ├── page.tsx            # form masuk
 │       │   ├── hooks.ts            # useLoginPage()
-│       │   ├── helper.ts           # kredensial mode lokal
+│       │   ├── helper.ts           # pesan kegagalan masuk
 │       │   └── components/
 │       └── admin/
-│           ├── layout.tsx          # AdminGuard
+│           ├── layout.tsx
 │           ├── page.tsx            # view form
 │           ├── hooks.ts            # useAdminPage()
 │           ├── helper.ts           # slugify + factory item baru
@@ -77,7 +76,6 @@ src/
 ├── components/                     # komponen shared + form/ + ui/ (shadcn-style)
 ├── middleware.ts                   # penjagaan /admin di sisi server (mode Supabase)
 ├── services/                       # auth, content, storage (semuanya lewat Supabase)
-├── store/                          # auth-store.ts, landing-content-store.ts
 ├── types/                          # type domain terpusat (LandingContent, dst)
 ├── lib/                            # utils, config, validation, image, landing-content
 │   └── supabase/                   # config + client browser & server
@@ -88,14 +86,9 @@ Berkas migrasi SQL ada di `supabase/migrations/`.
 
 ## Supabase
 
-Supabase bersifat opsional dan menentukan dua mode jalannya aplikasi.
-
-|                    | Mode lokal (`NEXT_PUBLIC_SUPABASE_URL` kosong) | Mode Supabase (terisi)                    |
-| ------------------ | ---------------------------------------------- | ----------------------------------------- |
-| Login              | Kredensial `.env.local`, diperiksa di browser  | Supabase Auth, sesi di cookie             |
-| Penjagaan `/admin` | `AdminGuard` di browser                        | `src/middleware.ts` di server             |
-| Konten             | `localStorage`, per-browser                    | Tabel `landing_content`, sama untuk semua |
-| Foto paket         | Data URL, maksimal 400 KB                      | Bucket `package-photos`, maksimal 2 MB    |
+Supabase adalah satu-satunya backend: autentikasi admin, penyimpanan konten, dan berkas foto.
+Tanpa kredensial yang benar, halaman publik tetap tampil dengan konten bawaan, tetapi
+`/admin` tertutup.
 
 ### Menyiapkan Supabase
 
@@ -106,20 +99,25 @@ Supabase bersifat opsional dan menentukan dua mode jalannya aplikasi.
 3. Buat pengguna admin di **Authentication > Users > Add user**. Pendaftaran mandiri tidak
    dipakai, jadi buat akunnya manual.
 4. Salin **Project URL** dan **anon key** dari **Project Settings > API** ke `.env.local`.
-5. Kosongkan `NEXT_PUBLIC_ADMIN_EMAIL` dan `NEXT_PUBLIC_ADMIN_PASSWORD`.
 
 > Jangan pernah menaruh **service_role key** di variable `NEXT_PUBLIC_*`. Kunci itu melewati
 > seluruh RLS, dan apa pun berawalan `NEXT_PUBLIC_` ikut terbundel ke JavaScript yang dikirim
 > ke setiap pengunjung.
 
-### Keamanan di kedua mode
+### Keamanan
 
-Di mode Supabase, `/admin` dijaga `src/middleware.ts`: permintaan tanpa sesi valid dialihkan
-ke `/login` sebelum halaman dirender, dan RLS memastikan hanya pengguna terautentikasi yang
-bisa menulis konten atau mengunggah foto. Ini perlindungan yang sebenarnya.
+`/admin` dijaga [src/middleware.ts](src/middleware.ts) di sisi server: permintaan tanpa sesi
+valid dialihkan ke `/login` sebelum halamannya dirender, termasuk pada navigasi client-side.
+Sesi disimpan di cookie lewat `@supabase/ssr`, dan diverifikasi dengan `getUser()` yang
+menanyakan token ke server Supabase — bukan `getSession()` yang hanya membaca cookie dan
+bisa dipalsukan.
 
-Di mode lokal tidak ada penjagaan server. `AdminGuard` hanya menyembunyikan tampilan, dan
-kredensial di `NEXT_PUBLIC_*` bisa dibaca lewat devtools. **Jangan dipakai di produksi.**
+Bila kredensial Supabase kosong, sesi tidak mungkin diverifikasi, jadi `/admin` ditolak.
+Gagal dalam keadaan tertutup, bukan terbuka.
+
+Lapisan kedua ada di database: RLS membuat konten bisa dibaca siapa saja tetapi hanya bisa
+ditulis pengguna terautentikasi. Jadi meskipun seseorang melewati antarmuka, Supabase tetap
+menolak tulisan tanpa sesi.
 
 ## Mengelola konten
 
@@ -130,26 +128,19 @@ daftar (fakta, keunggulan, paket, langkah, ulasan) bisa ditambah dan dihapus. To
 
 ### Dari mana konten dibaca
 
-`useLandingContent()` membaca dari Supabase bila ada isinya, lalu `landing-content-store`
-(Zustand + `persist`), lalu konten bawaan di
-[src/lib/landing-content.ts](src/lib/landing-content.ts).
-
-Di mode lokal, konten hanya hidup di `localStorage` browser yang dipakai, jadi pengunjung
-lain tidak melihat perubahan Anda. Admin menyatakan hal ini setelah menyimpan. Di mode
-Supabase, konten disimpan ke tabel dan berlaku untuk semua pengunjung.
+`useLandingContent()` membaca satu baris dari tabel `landing_content` lewat TanStack Query.
+Selama permintaan berjalan atau barisnya belum ada, konten bawaan di
+[src/lib/landing-content.ts](src/lib/landing-content.ts) yang dipakai, sehingga halaman tidak
+pernah kosong. Judul dan deskripsi halaman juga ikut konten ini lewat `generateMetadata`.
 
 ### Foto paket
 
 Kolom **Foto paket** memakai komponen `ImagePicker`: pilih berkas JPG, PNG, atau WebP dari
 perangkat, dan gambar tampil sebagai pratinjau sebelum disimpan.
 
-Di mode Supabase, foto dikompresi ke sisi terpanjang 1600 px lalu diunggah ke bucket
-`package-photos`, dan yang disimpan di konten hanyalah URL publiknya.
-
-Di mode lokal tidak ada tempat menyimpan berkas, jadi foto diperkecil ke 1200 px dan
-dikompresi sampai di bawah 400 KB lalu disimpan sebagai data URL — batas ini ada karena
-`localStorage` hanya menampung sekitar 5 MB untuk seluruh konten. Foto yang tetap terlalu
-besar setelah kompresi ditolak dengan pesan, bukan dipotong diam-diam.
+Foto dikompresi di browser ke sisi terpanjang 1600 px dan di bawah 2 MB, lalu diunggah ke
+bucket `package-photos`. Yang disimpan di konten hanyalah URL publiknya. Foto yang tetap
+terlalu besar setelah kompresi ditolak dengan pesan, bukan dipotong diam-diam.
 
 Slot foto lain (hero dan cara pesan) masih memakai `PhotoPlaceholder` dengan teks
 keterangan; isi prop `src` untuk menggantinya dengan `next/image`.

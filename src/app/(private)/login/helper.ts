@@ -1,19 +1,3 @@
-import { LOCAL_ADMIN_EMAIL, LOCAL_ADMIN_PASSWORD } from '@/lib/config'
-import type { AuthUser } from '@/types'
-
-/** Mode tanpa backend aktif hanya bila kedua kredensial lokal terisi. */
-export function hasLocalCredentials() {
-  return Boolean(LOCAL_ADMIN_EMAIL && LOCAL_ADMIN_PASSWORD)
-}
-
-export function matchesLocalCredentials(email: string, password: string) {
-  return (
-    hasLocalCredentials() &&
-    email.trim().toLowerCase() === LOCAL_ADMIN_EMAIL.toLowerCase() &&
-    password === LOCAL_ADMIN_PASSWORD
-  )
-}
-
 /**
  * Terjemahkan kegagalan masuk menjadi pesan yang bisa ditindaklanjuti.
  *
@@ -32,12 +16,4 @@ export function describeSignInError(error: unknown) {
   }
 
   return message || 'Gagal masuk.'
-}
-
-/** Sesi tiruan untuk mode lokal; token ini tidak berlaku di backend mana pun. */
-export function buildLocalSession(email: string): { token: string; user: AuthUser } {
-  return {
-    token: 'local-session',
-    user: { id: 'local-admin', name: 'Admin', email },
-  }
 }
