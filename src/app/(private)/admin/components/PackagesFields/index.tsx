@@ -15,9 +15,11 @@ import { SectionCard } from '../SectionCard'
 type PackagesFieldsProps = {
   form: UseFormReturn<LandingContentInput>
   packages: UseFieldArrayReturn<LandingContentInput, 'packages.items'>
+  /** Tanpa ini, foto disimpan sebagai data URL alih-alih diunggah. */
+  onUploadPhoto?: (file: File) => Promise<string>
 }
 
-export function PackagesFields({ form, packages }: PackagesFieldsProps) {
+export function PackagesFields({ form, packages, onUploadPhoto }: PackagesFieldsProps) {
   const { register, formState, getValues } = form
   const errors = formState.errors.packages
 
@@ -85,6 +87,7 @@ export function PackagesFields({ form, packages }: PackagesFieldsProps) {
                       label="Foto paket"
                       value={field.value}
                       onChange={field.onChange}
+                      onUpload={onUploadPhoto}
                       hint="JPG, PNG, atau WebP. Kosongkan untuk memakai placeholder."
                     />
                   )}

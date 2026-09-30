@@ -22,6 +22,7 @@ export default function AdminPage() {
     onSubmit,
     onReset,
     onLogout,
+    onUploadPhoto,
     activeSection,
     setActiveSection,
     sectionsWithErrors,
@@ -35,7 +36,9 @@ export default function AdminPage() {
     hero: <HeroFields form={form} />,
     facts: <FactsFields form={form} facts={fieldArrays.facts} />,
     highlights: <HighlightsFields form={form} highlights={fieldArrays.highlights} />,
-    packages: <PackagesFields form={form} packages={fieldArrays.packages} />,
+    packages: (
+      <PackagesFields form={form} packages={fieldArrays.packages} onUploadPhoto={onUploadPhoto} />
+    ),
     howToOrder: <HowToOrderFields form={form} steps={fieldArrays.steps} />,
     testimonials: <TestimonialsFields form={form} testimonials={fieldArrays.testimonials} />,
     cta: <CtaFields form={form} />,

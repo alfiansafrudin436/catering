@@ -6,17 +6,25 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 
+import { isSupabaseConfigured } from '@/lib/supabase/config'
 import { loginSchema, type LoginInput } from '@/lib/validation'
-import { login } from '@/services/auth.service'
+import { signIn } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
 
-import { buildLocalSession, hasLocalCredentials, matchesLocalCredentials } from './helper'
+import {
+  buildLocalSession,
+  describeSignInError,
+  hasLocalCredentials,
+  matchesLocalCredentials,
+} from './helper'
 
 /** Logic halaman login admin. */
 export function useLoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('next') ?? '/admin'
+
+  const usesSupabase = isSupabaseConfigured()
 
   const token = useAuthStore((state) => state.token)
   const hasHydrated = useAuthStore((state) => state.hasHydrated)
@@ -29,38 +37,46 @@ export function useLoginPage() {
     defaultValues: { email: '', password: '' },
   })
 
-  // Sudah punya sesi: tidak perlu login lagi.
+  // Mode lokal saja. Dengan Supabase, middleware yang memulangkan pengguna
+  // yang sudah punya sesi, sebelum halaman ini sempat dirender.
   useEffect(() => {
-    if (hasHydrated && token) router.replace(redirectTo)
-  }, [hasHydrated, token, redirectTo, router])
+    if (!usesSupabase && hasHydrated && token) router.replace(redirectTo)
+  }, [usesSupabase, hasHydrated, token, redirectTo, router])
 
-  const mutation = useMutation({ mutationFn: login })
+  const mutation = useMutation({
+    mutationFn: ({ email, password }: LoginInput) => signIn(email, password),
+  })
 
   const onSubmit = form.handleSubmit(async ({ email, password }) => {
     setErrorMessage(null)
 
-    try {
-      const result = await mutation.mutateAsync({ email, password })
-      setSession(result.token, result.user)
-      router.replace(redirectTo)
-      return
-    } catch (error) {
-      // Backend belum tersedia: jatuh ke kredensial lokal bila dikonfigurasi.
-      if (matchesLocalCredentials(email, password)) {
-        const session = buildLocalSession(email)
-        setSession(session.token, session.user)
+    if (usesSupabase) {
+      try {
+        const user = await mutation.mutateAsync({ email, password })
+        setSession('supabase-session', user)
+        // refresh() agar middleware membaca cookie sesi yang baru ditulis.
         router.replace(redirectTo)
-        return
+        router.refresh()
+      } catch (error) {
+        setErrorMessage(describeSignInError(error))
       }
 
-      setErrorMessage(
-        hasLocalCredentials()
-          ? 'Email atau kata sandi salah.'
-          : error instanceof Error
-            ? error.message
-            : 'Gagal masuk.',
-      )
+      return
     }
+
+    if (matchesLocalCredentials(email, password)) {
+      const session = buildLocalSession(email)
+      setSession(session.token, session.user)
+      router.replace(redirectTo)
+
+      return
+    }
+
+    setErrorMessage(
+      hasLocalCredentials()
+        ? 'Email atau kata sandi salah.'
+        : 'Supabase belum dikonfigurasi dan kredensial lokal belum diisi.',
+    )
   })
 
   return {
@@ -68,6 +84,6 @@ export function useLoginPage() {
     onSubmit,
     errorMessage,
     isSubmitting: mutation.isPending || form.formState.isSubmitting,
-    isLocalMode: hasLocalCredentials(),
+    isLocalMode: !usesSupabase,
   }
 }

@@ -1,10 +1,3 @@
-export type ApiEnvelope<T> = {
-  success: boolean
-  data: T
-  message: string
-  statusCode: number
-}
-
 export type AuthUser = {
   id: string
   name: string

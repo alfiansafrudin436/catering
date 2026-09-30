@@ -12,12 +12,24 @@ type ImagePickerProps = {
   label: string
   value?: string
   onChange: (value: string) => void
+  /**
+   * Bila diberikan, berkas diunggah lewat fungsi ini dan URL hasilnya disimpan.
+   * Tanpa itu, gambar disimpan sebagai data URL terkompresi.
+   */
+  onUpload?: (file: File) => Promise<string>
   hint?: string
   className?: string
 }
 
 /** Pemilih gambar: pratinjau, unggah dari perangkat, dan hapus. */
-export function ImagePicker({ label, value, onChange, hint, className }: ImagePickerProps) {
+export function ImagePicker({
+  label,
+  value,
+  onChange,
+  onUpload,
+  hint,
+  className,
+}: ImagePickerProps) {
   const inputId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +42,7 @@ export function ImagePicker({ label, value, onChange, hint, className }: ImagePi
     setIsProcessing(true)
 
     try {
-      onChange(await fileToCompressedDataUrl(file))
+      onChange(onUpload ? await onUpload(file) : await fileToCompressedDataUrl(file))
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Gagal memproses gambar.')
     } finally {
@@ -76,7 +88,13 @@ export function ImagePicker({ label, value, onChange, hint, className }: ImagePi
               onClick={() => inputRef.current?.click()}
             >
               <ImageUp className="size-4" aria-hidden />
-              {isProcessing ? 'Memproses...' : value ? 'Ganti gambar' : 'Pilih gambar'}
+              {isProcessing
+                ? onUpload
+                  ? 'Mengunggah...'
+                  : 'Memproses...'
+                : value
+                  ? 'Ganti gambar'
+                  : 'Pilih gambar'}
             </Button>
             {value ? (
               <Button
