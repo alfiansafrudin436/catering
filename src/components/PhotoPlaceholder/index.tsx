@@ -18,6 +18,9 @@ export function PhotoPlaceholder({ label, src, className }: PhotoPlaceholderProp
           alt={label}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
+          // Gambar dari ImagePicker berupa data URL yang sudah dikompresi,
+          // jadi tidak perlu (dan tidak bisa) lewat optimizer.
+          unoptimized={src.startsWith('data:')}
           className="object-cover"
         />
       </div>

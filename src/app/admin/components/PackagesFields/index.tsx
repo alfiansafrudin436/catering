@@ -1,6 +1,7 @@
-import type { UseFieldArrayReturn, UseFormReturn } from 'react-hook-form'
+import { Controller, type UseFieldArrayReturn, type UseFormReturn } from 'react-hook-form'
 import { Plus } from 'lucide-react'
 
+import { ImagePicker } from '@/components'
 import { Field } from '@/components/form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -76,15 +77,18 @@ export function PackagesFields({ form, packages }: PackagesFieldsProps) {
                 <Field label="Harga per porsi" error={errors?.items?.[index]?.price?.message}>
                   {(props) => <Input {...props} {...register(`packages.items.${index}.price`)} />}
                 </Field>
-                <Field
-                  label="URL foto"
-                  error={errors?.items?.[index]?.imageUrl?.message}
-                  hint="Kosongkan untuk memakai placeholder."
-                >
-                  {(props) => (
-                    <Input {...props} {...register(`packages.items.${index}.imageUrl`)} />
+                <Controller
+                  control={form.control}
+                  name={`packages.items.${index}.imageUrl`}
+                  render={({ field }) => (
+                    <ImagePicker
+                      label="Foto paket"
+                      value={field.value}
+                      onChange={field.onChange}
+                      hint="JPG, PNG, atau WebP. Kosongkan untuk memakai placeholder."
+                    />
                   )}
-                </Field>
+                />
               </div>
             </RepeatableItem>
           ))}
