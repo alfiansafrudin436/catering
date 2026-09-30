@@ -13,6 +13,10 @@ pnpm dev
 
 ## Rute
 
+Halaman dikelompokkan dengan route group: `(public)` untuk halaman pengunjung dan
+`(private)` untuk konsol admin. Tanda kurung membuat nama grup tidak ikut ke URL, jadi
+pengelompokan ini murni penataan folder.
+
 | Rute           | Isi                                                       |
 | -------------- | --------------------------------------------------------- |
 | `/`            | Redirect ke `/landingpage`                                |
@@ -57,17 +61,18 @@ src/
 │   │       ├── hooks.ts            # useLandingPage()
 │   │       ├── helper.ts           # builder pesan WhatsApp
 │   │       └── components/         # section lokal halaman
-│   ├── login/
-│   │   ├── page.tsx                # form masuk
-│   │   ├── hooks.ts                # useLoginPage()
-│   │   ├── helper.ts               # kredensial mode lokal
-│   │   └── components/
-│   └── admin/
-│       ├── layout.tsx
-│       ├── page.tsx                # view form
-│       ├── hooks.ts                # useAdminPage()
-│       ├── helper.ts               # slugify + factory item baru
-│       └── components/             # kartu form per section
+│   └── (private)/
+│       ├── login/
+│       │   ├── page.tsx            # form masuk
+│       │   ├── hooks.ts            # useLoginPage()
+│       │   ├── helper.ts           # kredensial mode lokal
+│       │   └── components/
+│       └── admin/
+│           ├── layout.tsx          # AdminGuard
+│           ├── page.tsx            # view form
+│           ├── hooks.ts            # useAdminPage()
+│           ├── helper.ts           # slugify + factory item baru
+│           └── components/         # kartu form per section
 ├── components/                     # komponen shared + form/ + ui/ (shadcn-style)
 ├── services/                       # api.ts + content.service.ts
 ├── store/                          # auth-store.ts, landing-content-store.ts
