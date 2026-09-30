@@ -13,11 +13,12 @@ pnpm dev
 
 ## Rute
 
-| Rute           | Isi                                          |
-| -------------- | -------------------------------------------- |
-| `/`            | Redirect ke `/landingpage`                   |
-| `/landingpage` | Landing page publik                          |
-| `/admin`       | Form pengelolaan seluruh konten landing page |
+| Rute           | Isi                                                       |
+| -------------- | --------------------------------------------------------- |
+| `/`            | Redirect ke `/landingpage`                                |
+| `/landingpage` | Landing page publik                                       |
+| `/login`       | Form masuk ke admin                                       |
+| `/admin`       | Form pengelolaan seluruh konten landing page (butuh sesi) |
 
 ## Script
 
@@ -36,6 +37,8 @@ pnpm dev
 | `NEXT_PUBLIC_API_BASE_URL`    | Base URL backend API                                            |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Nomor wa.me bawaan, dipakai bila konten belum menyetel nomornya |
 | `NEXT_PUBLIC_BRAND_NAME`      | Nama brand bawaan untuk metadata                                |
+| `NEXT_PUBLIC_ADMIN_EMAIL`     | Email admin untuk mode tanpa backend (development saja)         |
+| `NEXT_PUBLIC_ADMIN_PASSWORD`  | Kata sandi admin untuk mode tanpa backend (development saja)    |
 
 ## Struktur
 
@@ -54,6 +57,11 @@ src/
 │   │       ├── hooks.ts            # useLandingPage()
 │   │       ├── helper.ts           # builder pesan WhatsApp
 │   │       └── components/         # section lokal halaman
+│   ├── login/
+│   │   ├── page.tsx                # form masuk
+│   │   ├── hooks.ts                # useLoginPage()
+│   │   ├── helper.ts               # kredensial mode lokal
+│   │   └── components/
 │   └── admin/
 │       ├── layout.tsx
 │       ├── page.tsx                # view form
@@ -67,6 +75,20 @@ src/
 ├── lib/                            # utils, config, validation, landing-content
 └── hooks/                          # use-media-query.ts, use-landing-content.ts
 ```
+
+## Masuk ke admin
+
+`/admin` dijaga `AdminGuard`: tanpa sesi, halaman mengarahkan ke `/login?next=/admin`.
+Form login memanggil `POST /auth/login`.
+
+Selama backend belum ada, login jatuh ke kredensial di `.env.local`
+(`NEXT_PUBLIC_ADMIN_EMAIL` dan `NEXT_PUBLIC_ADMIN_PASSWORD`).
+
+> **Ini bukan pengamanan.** `AdminGuard` hanya menyembunyikan tampilan di browser, dan
+> variable `NEXT_PUBLIC_*` ikut terbundel ke JavaScript yang dikirim ke pengunjung,
+> sehingga kredensialnya bisa dibaca lewat devtools. Sebelum dipakai di produksi,
+> kosongkan kedua variable itu, sediakan `/auth/login` sungguhan, dan pastikan backend
+> memeriksa token di setiap endpoint konten.
 
 ## Mengelola konten
 
@@ -88,5 +110,15 @@ endpoint itu belum ada, admin menampilkan pemberitahuan bahwa perubahan hanya te
 lokal. Begitu backend tersedia, konten menjadi bersama untuk semua pengunjung tanpa
 mengubah komponen halaman.
 
-Slot foto memakai komponen `PhotoPlaceholder`: isi prop `src` (atau kolom **URL foto** di
-admin) untuk menggantinya dengan `next/image`.
+### Foto paket
+
+Kolom **Foto paket** memakai komponen `ImagePicker`: pilih berkas JPG, PNG, atau WebP dari
+perangkat, dan gambar tampil sebagai pratinjau sebelum disimpan.
+
+Gambar diperkecil di browser ke sisi terpanjang 1200 px lalu dikompresi ke JPEG sampai di
+bawah 400 KB, karena konten disimpan di `localStorage` yang kuotanya sekitar 5 MB. Kalau
+sebuah foto tetap terlalu besar setelah kompresi, picker menolaknya dan meminta foto
+beresolusi lebih kecil.
+
+Slot foto lain (hero dan cara pesan) masih memakai `PhotoPlaceholder` dengan teks
+keterangan; isi prop `src` untuk menggantinya dengan `next/image`.
