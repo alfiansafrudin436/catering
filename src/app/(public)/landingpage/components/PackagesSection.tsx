@@ -1,27 +1,26 @@
 import { Container, PhotoPlaceholder, WhatsAppButton } from '@/components'
-import type { CateringPackage } from '@/types'
+import type { PackagesContent } from '@/types'
 
 import { buildPackageMessage } from '../helper'
 
 type PackagesSectionProps = {
-  packages: CateringPackage[]
+  packages: PackagesContent
+  whatsappNumber: string
 }
 
-export function PackagesSection({ packages }: PackagesSectionProps) {
+export function PackagesSection({ packages, whatsappNumber }: PackagesSectionProps) {
   return (
     <section id="paket" className="scroll-mt-24 py-12 md:py-20">
       <Container>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-10">
           <h2 className="font-display text-[2rem] leading-[1.15] font-semibold tracking-tight md:text-[2.75rem]">
-            Pilih paket sesuai kebutuhan
+            {packages.title}
           </h2>
-          <p className="text-muted-foreground text-sm md:pb-2">
-            Harga per porsi, belum termasuk ongkos antar.
-          </p>
+          <p className="text-muted-foreground text-sm md:pb-2">{packages.note}</p>
         </div>
 
         <div className="mt-8 grid gap-10 md:mt-12 md:grid-cols-3 md:gap-6">
-          {packages.map((item, index) => (
+          {packages.items.map((item, index) => (
             <article key={item.slug} className="flex flex-col">
               <PhotoPlaceholder
                 label={item.imageUrl ? item.name : `[FOTO PAKET ${index + 1}]`}
@@ -38,6 +37,7 @@ export function PackagesSection({ packages }: PackagesSectionProps) {
                 <p className="text-sm font-semibold">{item.price}</p>
                 <WhatsAppButton
                   message={buildPackageMessage(item.name)}
+                  phone={whatsappNumber}
                   label="Pesan paket ini"
                   variant="outline"
                   size="sm"

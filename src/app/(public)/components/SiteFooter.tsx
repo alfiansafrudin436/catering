@@ -1,15 +1,18 @@
-import { Container } from '@/components'
-import { BRAND_NAME } from '@/lib/config'
+'use client'
 
-import { NAV_ITEMS } from '../helper'
+import { Container } from '@/components'
+import { useLandingContent } from '@/hooks/use-landing-content'
+import { NAV_ITEMS } from '@/lib/landing-content'
 
 export function SiteFooter() {
+  const { brand } = useLandingContent()
+
   return (
     <footer className="border-border border-t py-12 md:py-16">
       <Container className="grid gap-10 md:grid-cols-3">
         <div>
-          <p className="font-display text-lg font-semibold tracking-tight">{BRAND_NAME}</p>
-          <p className="text-muted-foreground mt-2 text-sm">[Alamat singkat / kota]</p>
+          <p className="font-display text-lg font-semibold tracking-tight">{brand.name}</p>
+          <p className="text-muted-foreground mt-2 text-sm">{brand.address}</p>
         </div>
 
         <nav className="flex flex-col gap-3 text-sm">
@@ -21,9 +24,9 @@ export function SiteFooter() {
         </nav>
 
         <div className="text-muted-foreground flex flex-col gap-1.5 text-sm">
-          <p>[@instagram]</p>
-          <p>WhatsApp [0812-XXXX-XXXX]</p>
-          <p>[Email]</p>
+          <p>{brand.instagram}</p>
+          <p>WhatsApp {brand.phoneLabel}</p>
+          <p>{brand.email}</p>
         </div>
       </Container>
     </footer>

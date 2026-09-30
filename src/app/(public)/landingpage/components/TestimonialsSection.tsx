@@ -1,18 +1,18 @@
 import { Container, SectionHeading } from '@/components'
-import type { Testimonial } from '@/types'
+import type { TestimonialsContent } from '@/types'
 
 type TestimonialsSectionProps = {
-  testimonials: Testimonial[]
+  testimonials: TestimonialsContent
 }
 
 export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
   return (
     <section id="ulasan" className="scroll-mt-24 py-12 md:py-20">
       <Container>
-        <SectionHeading title="Kata mereka yang sudah mencoba" />
+        <SectionHeading title={testimonials.title} />
 
         <div className="mt-8 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
-          {testimonials.map((testimonial) => (
+          {testimonials.items.map((testimonial) => (
             <figure
               key={testimonial.id}
               className="bg-surface border-border rounded-card border p-6 md:p-7"

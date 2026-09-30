@@ -2,9 +2,7 @@ import { Clock, Flame, Leaf } from 'lucide-react'
 
 import { Container, SectionHeading } from '@/components'
 import { cn } from '@/lib/utils'
-import type { ServiceHighlight } from '@/types'
-
-import { SERVICE_HIGHLIGHTS } from '../helper'
+import type { HighlightIcon, HighlightsContent } from '@/types'
 
 const ICONS = {
   leaf: Leaf,
@@ -12,23 +10,24 @@ const ICONS = {
   clock: Clock,
 } as const
 
-const ICON_TONE: Record<ServiceHighlight['icon'], string> = {
+const ICON_TONE: Record<HighlightIcon, string> = {
   leaf: 'bg-secondary text-secondary-foreground',
   flame: 'bg-primary text-primary-foreground',
   clock: 'bg-secondary text-secondary-foreground',
 }
 
-export function HighlightsSection() {
+type HighlightsSectionProps = {
+  highlights: HighlightsContent
+}
+
+export function HighlightsSection({ highlights }: HighlightsSectionProps) {
   return (
     <section className="py-12 md:py-20">
       <Container>
-        <SectionHeading
-          title="Kenapa banyak yang kembali memesan"
-          description="Tiga hal sederhana yang kami jaga di setiap pesanan."
-        />
+        <SectionHeading title={highlights.title} description={highlights.description} />
 
         <div className="mt-8 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
-          {SERVICE_HIGHLIGHTS.map((highlight) => {
+          {highlights.items.map((highlight) => {
             const Icon = ICONS[highlight.icon]
 
             return (
