@@ -4,12 +4,12 @@ import Link from 'next/link'
 
 import { Container, WhatsAppButton } from '@/components'
 import { useLandingContent } from '@/hooks/use-landing-content'
-import { NAV_ITEMS } from '@/lib/landing-content'
+import { NAV_ITEMS } from '@/lib/navigation'
 
 import { GENERAL_MESSAGE } from '../../landingpage/helper'
 
 export function SiteHeader() {
-  const { brand } = useLandingContent()
+  const brand = useLandingContent()?.brand
 
   return (
     <header className="bg-background/90 sticky top-0 z-50 backdrop-blur">
@@ -18,7 +18,7 @@ export function SiteHeader() {
           href="/landingpage"
           className="font-display text-base font-semibold tracking-tight md:text-xl"
         >
-          {brand.name}
+          {brand?.name}
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -33,20 +33,25 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <WhatsAppButton
-          message={GENERAL_MESSAGE}
-          phone={brand.whatsappNumber}
-          label="Pesan via WhatsApp"
-          size="sm"
-          className="hidden md:inline-flex"
-        />
-        <WhatsAppButton
-          message={GENERAL_MESSAGE}
-          phone={brand.whatsappNumber}
-          label="Pesan"
-          size="sm"
-          className="h-8 px-4 text-xs md:hidden [&_svg]:hidden"
-        />
+        {/* Tombol pesan butuh nomor tujuan, jadi tunggu konten tersedia. */}
+        {brand ? (
+          <>
+            <WhatsAppButton
+              message={GENERAL_MESSAGE}
+              phone={brand.whatsappNumber}
+              label="Pesan via WhatsApp"
+              size="sm"
+              className="hidden md:inline-flex"
+            />
+            <WhatsAppButton
+              message={GENERAL_MESSAGE}
+              phone={brand.whatsappNumber}
+              label="Pesan"
+              size="sm"
+              className="h-8 px-4 text-xs md:hidden [&_svg]:hidden"
+            />
+          </>
+        ) : null}
       </Container>
     </header>
   )

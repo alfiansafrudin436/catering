@@ -8,7 +8,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { LANDING_CONTENT_KEY, useLandingContentQuery } from '@/hooks/use-landing-content'
 import { fileToCompressedBlob } from '@/lib/image'
-import { DEFAULT_LANDING_CONTENT } from '@/lib/landing-content'
 import { landingContentSchema, type LandingContentInput } from '@/lib/validation'
 import { signOut } from '@/services/auth.service'
 import { updateLandingContent } from '@/services/content.service'
@@ -32,9 +31,10 @@ export function useAdminPage() {
   const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' })
   const [activeSection, setActiveSection] = useState<AdminSectionId>('brand')
 
+  // Tidak ada nilai bawaan di kode: form diisi dari Supabase setelah termuat,
+  // dan panelnya baru dirender setelah itu.
   const form = useForm<LandingContentInput>({
     resolver: zodResolver(landingContentSchema),
-    defaultValues: DEFAULT_LANDING_CONTENT,
     mode: 'onSubmit',
   })
 
@@ -45,11 +45,11 @@ export function useAdminPage() {
   const hasSeededRef = useRef(false)
 
   useEffect(() => {
-    if (hasSeededRef.current || contentQuery.isPending) return
+    if (hasSeededRef.current || !contentQuery.data) return
 
     hasSeededRef.current = true
-    form.reset(contentQuery.data ?? DEFAULT_LANDING_CONTENT)
-  }, [contentQuery.isPending, contentQuery.data, form])
+    form.reset(contentQuery.data)
+  }, [contentQuery.data, form])
 
   const facts = useFieldArray({ control: form.control, name: 'facts' })
   const highlights = useFieldArray({ control: form.control, name: 'highlights.items' })
@@ -89,8 +89,9 @@ export function useAdminPage() {
     },
   )
 
-  const onReset = () => {
-    form.reset(DEFAULT_LANDING_CONTENT)
+  /** Buang perubahan yang belum disimpan, kembali ke konten tersimpan terakhir. */
+  const onRevert = () => {
+    if (contentQuery.data) form.reset(contentQuery.data)
     setSaveState({ status: 'idle' })
   }
 
@@ -112,13 +113,13 @@ export function useAdminPage() {
     form,
     fieldArrays: { facts, highlights, packages, steps, testimonials },
     onSubmit,
-    onReset,
+    onRevert,
     onLogout,
     onUploadPhoto,
     activeSection,
     setActiveSection,
     sectionsWithErrors,
-    isLoading: contentQuery.isPending,
+    isLoading: !contentQuery.data,
     isSaving: mutation.isPending,
     isDirty: form.formState.isDirty,
     saveState,

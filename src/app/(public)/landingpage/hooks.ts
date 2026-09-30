@@ -1,10 +1,17 @@
 'use client'
 
-import { useLandingContent } from '@/hooks/use-landing-content'
+import { useLandingContentQuery } from '@/hooks/use-landing-content'
+import { isSupabaseConfigured } from '@/lib/supabase/config'
 
 /** Logic halaman landing publik. */
 export function useLandingPage() {
-  const content = useLandingContent()
+  const { data: content, isPending, isError, error } = useLandingContentQuery()
 
-  return { content }
+  return {
+    content,
+    isPending,
+    isError,
+    errorMessage: error instanceof Error ? error.message : null,
+    isConfigured: isSupabaseConfigured(),
+  }
 }

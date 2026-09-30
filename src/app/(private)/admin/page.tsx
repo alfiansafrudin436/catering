@@ -20,7 +20,7 @@ export default function AdminPage() {
     form,
     fieldArrays,
     onSubmit,
-    onReset,
+    onRevert,
     onLogout,
     onUploadPhoto,
     activeSection,
@@ -47,7 +47,7 @@ export default function AdminPage() {
 
   return (
     <form onSubmit={onSubmit}>
-      <AdminToolbar isSaving={isSaving} isDirty={isDirty} onReset={onReset} onLogout={onLogout} />
+      <AdminToolbar isSaving={isSaving} isDirty={isDirty} onRevert={onRevert} onLogout={onLogout} />
 
       <Container className="grid gap-5 py-6 md:grid-cols-[220px_1fr] md:gap-8 md:py-10">
         <AdminNav

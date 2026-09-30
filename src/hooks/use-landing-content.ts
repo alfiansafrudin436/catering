@@ -2,7 +2,6 @@
 
 import { useQuery } from '@tanstack/react-query'
 
-import { DEFAULT_LANDING_CONTENT } from '@/lib/landing-content'
 import { getLandingContent } from '@/services/content.service'
 
 export const LANDING_CONTENT_KEY = ['landing-content'] as const
@@ -12,13 +11,11 @@ export function useLandingContentQuery() {
 }
 
 /**
- * Konten landing page yang sedang berlaku.
+ * Konten landing page dari Supabase.
  *
- * Selama permintaan berjalan atau barisnya belum ada di Supabase, konten bawaan
- * dipakai supaya halaman tidak pernah kosong.
+ * undefined selama permintaan berjalan, atau bila baris 'default' belum ada.
+ * Baris itu dibuat oleh supabase/migrations/0002_seed_landing_content.sql.
  */
 export function useLandingContent() {
-  const { data } = useLandingContentQuery()
-
-  return data ?? DEFAULT_LANDING_CONTENT
+  return useLandingContentQuery().data ?? undefined
 }

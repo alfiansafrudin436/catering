@@ -1,5 +1,7 @@
 'use client'
 
+import { Container } from '@/components'
+
 import { CtaSection } from './components/CtaSection'
 import { HeroSection } from './components/HeroSection'
 import { HighlightsSection } from './components/HighlightsSection'
@@ -9,7 +11,23 @@ import { TestimonialsSection } from './components/TestimonialsSection'
 import { useLandingPage } from './hooks'
 
 export default function LandingPage() {
-  const { content } = useLandingPage()
+  const { content, isPending, isError, errorMessage, isConfigured } = useLandingPage()
+
+  if (!content) {
+    return (
+      <Container className="py-24 text-center">
+        <p className="text-muted-foreground text-sm">
+          {!isConfigured
+            ? 'Supabase belum dikonfigurasi. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local.'
+            : isPending
+              ? 'Memuat konten...'
+              : isError
+                ? `Gagal memuat konten: ${errorMessage ?? 'Supabase tidak merespons.'}`
+                : 'Konten belum tersedia. Jalankan supabase/migrations/0002_seed_landing_content.sql.'}
+        </p>
+      </Container>
+    )
+  }
 
   return (
     <>

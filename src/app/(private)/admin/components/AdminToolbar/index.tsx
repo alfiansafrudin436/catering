@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button'
 type AdminToolbarProps = {
   isSaving: boolean
   isDirty: boolean
-  onReset: () => void
+  onRevert: () => void
   onLogout: () => void
 }
 
-export function AdminToolbar({ isSaving, isDirty, onReset, onLogout }: AdminToolbarProps) {
+export function AdminToolbar({ isSaving, isDirty, onRevert, onLogout }: AdminToolbarProps) {
   return (
     <div className="border-border bg-background/90 sticky top-0 z-50 border-b backdrop-blur">
       <Container className="flex h-auto flex-wrap items-center justify-between gap-3 py-3 md:h-20 md:flex-nowrap md:py-0">
@@ -26,9 +26,16 @@ export function AdminToolbar({ isSaving, isDirty, onReset, onLogout }: AdminTool
 
         {/* Label teks disembunyikan di layar sempit supaya empat tombol tetap muat. */}
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onReset} aria-label="Reset">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onRevert}
+            disabled={!isDirty}
+            aria-label="Batalkan perubahan"
+          >
             <RotateCcw className="size-4" aria-hidden />
-            <span className="hidden sm:inline">Reset</span>
+            <span className="hidden sm:inline">Batalkan</span>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link href="/landingpage" target="_blank" aria-label="Lihat halaman">

@@ -77,7 +77,7 @@ src/
 ├── middleware.ts                   # penjagaan /admin di sisi server (mode Supabase)
 ├── services/                       # auth, content, storage (semuanya lewat Supabase)
 ├── types/                          # type domain terpusat (LandingContent, dst)
-├── lib/                            # utils, config, validation, image, landing-content
+├── lib/                            # utils, config, validation, image, navigation
 │   └── supabase/                   # config + client browser & server
 └── hooks/                          # use-media-query.ts, use-landing-content.ts
 ```
@@ -93,9 +93,12 @@ Tanpa kredensial yang benar, halaman publik tetap tampil dengan konten bawaan, t
 ### Menyiapkan Supabase
 
 1. Buat project di [supabase.com](https://supabase.com).
-2. Jalankan [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql) lewat
-   **SQL Editor** di dashboard. Berkas itu membuat tabel `landing_content`, bucket
-   `package-photos`, dan seluruh RLS policy-nya.
+2. Jalankan kedua berkas di `supabase/migrations/` lewat **SQL Editor** di dashboard, urut:
+   [0001_init.sql](supabase/migrations/0001_init.sql) membuat tabel `landing_content`, bucket
+   `package-photos`, dan seluruh RLS policy-nya;
+   [0002_seed_landing_content.sql](supabase/migrations/0002_seed_landing_content.sql) mengisi
+   konten awal. Tanpa langkah kedua, halaman publik kosong karena tidak ada konten bawaan di
+   dalam kode.
 3. Buat pengguna admin di **Authentication > Users > Add user**. Pendaftaran mandiri tidak
    dipakai, jadi buat akunnya manual.
 4. Salin **Project URL** dan **anon key** dari **Project Settings > API** ke `.env.local`.
@@ -123,15 +126,20 @@ menolak tulisan tanpa sesi.
 
 Buka `/admin` untuk mengubah seluruh isi landing page: brand dan kontak, hero, fakta
 layanan, keunggulan, paket, langkah pemesanan, ulasan, dan CTA penutup. Item yang berupa
-daftar (fakta, keunggulan, paket, langkah, ulasan) bisa ditambah dan dihapus. Tombol
-**Reset** mengembalikan seluruh konten ke nilai bawaan.
+daftar (fakta, keunggulan, paket, langkah, ulasan) bisa ditambah dan dihapus.
 
 ### Dari mana konten dibaca
 
 `useLandingContent()` membaca satu baris dari tabel `landing_content` lewat TanStack Query.
-Selama permintaan berjalan atau barisnya belum ada, konten bawaan di
-[src/lib/landing-content.ts](src/lib/landing-content.ts) yang dipakai, sehingga halaman tidak
-pernah kosong. Judul dan deskripsi halaman juga ikut konten ini lewat `generateMetadata`.
+Tidak ada salinan konten bawaan di dalam kode: satu-satunya sumbernya adalah
+[0002_seed_landing_content.sql](supabase/migrations/0002_seed_landing_content.sql).
+
+Bila barisnya belum ada, halaman publik menampilkan keterangan singkat tentang apa yang
+kurang — kredensial, migrasi, atau koneksi — alih-alih halaman rusak. Judul dan deskripsi
+halaman juga ikut konten ini lewat `generateMetadata`.
+
+Tombol **Batalkan** di admin membuang perubahan yang belum disimpan dan kembali ke konten
+tersimpan terakhir. Tidak ada lagi "reset ke bawaan", karena bawaan itu kini milik database.
 
 ### Foto paket
 
