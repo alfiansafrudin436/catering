@@ -1,0 +1,14 @@
+# unrs-resolver (transitive dep eslint-import-resolver) punya postinstall yang
+# hanya mengunduh native binding. Binding platform sudah terpasang sebagai
+# optionalDependency, jadi script-nya tidak diperlukan.
+allowBuilds:
+  unrs-resolver: false
+
+# Paket berikut baru dirilis saat project di-scaffold sehingga tertahan policy
+# minimumReleaseAge bawaan pnpm. Semuanya paket resmi Next.js/lucide yang dipakai
+# create-next-app. Hapus entri ini setelah rilisnya melewati batas usia.
+minimumReleaseAgeExclude:
+  - next
+  - '@next/*'
+  - eslint-config-next
+  - lucide-react
