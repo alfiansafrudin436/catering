@@ -15,7 +15,7 @@ export default function LandingPage() {
 
   if (!content) {
     return (
-      <Container className="py-24 text-center">
+      <Container className="animate-rise-in py-24 text-center">
         <p className="text-muted-foreground text-sm">
           {!isConfigured
             ? 'Supabase belum dikonfigurasi. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local.'

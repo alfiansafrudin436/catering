@@ -64,3 +64,108 @@ body {
     transparent 15px
   );
 }
+
+/* ===== Motion =====
+   Semua animasi dimatikan otomatis saat pengguna memilih reduced motion. */
+
+:root {
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-reveal: 700ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Elemen yang muncul saat masuk viewport. Delay diatur lewat --reveal-delay. */
+.reveal {
+  opacity: 0;
+  transition:
+    opacity var(--duration-reveal) var(--ease-soft),
+    transform var(--duration-reveal) var(--ease-soft),
+    filter var(--duration-reveal) var(--ease-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal-up {
+  transform: translate3d(0, 1.75rem, 0);
+}
+
+.reveal-left {
+  transform: translate3d(-1.75rem, 0, 0);
+}
+
+.reveal-right {
+  transform: translate3d(1.75rem, 0, 0);
+}
+
+.reveal-zoom {
+  transform: scale(0.94);
+}
+
+.reveal-fade {
+  filter: blur(6px);
+}
+
+.reveal[data-revealed='true'] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  will-change: auto;
+}
+
+/* Blob dekoratif di hero: naik-turun halus tanpa mengganggu layout. */
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -0.75rem, 0) scale(1.03);
+  }
+}
+
+.animate-float-soft {
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  .animate-float-soft {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Elemen yang baru dimount (pesan error, status) ikut muncul halus. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.5rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise-in {
+  animation: rise-in 400ms var(--ease-soft) both;
+}

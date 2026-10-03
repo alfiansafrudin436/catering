@@ -1,4 +1,4 @@
-import { Container, WhatsAppButton } from '@/components'
+import { Container, Reveal, WhatsAppButton } from '@/components'
 import type { CtaContent } from '@/types'
 
 import { GENERAL_MESSAGE } from '../../helper'
@@ -12,7 +12,10 @@ export function CtaSection({ cta, whatsappNumber }: CtaSectionProps) {
   return (
     <section className="pb-12 md:pb-20">
       <Container>
-        <div className="bg-secondary text-secondary-foreground rounded-[1.5rem] px-6 py-12 text-center md:rounded-[2rem] md:px-10 md:py-16">
+        <Reveal
+          variant="zoom"
+          className="bg-secondary text-secondary-foreground rounded-[1.5rem] px-6 py-12 text-center md:rounded-[2rem] md:px-10 md:py-16"
+        >
           <h2 className="font-display mx-auto max-w-lg text-[1.75rem] leading-[1.15] font-semibold tracking-tight text-balance md:text-[2.5rem]">
             {cta.title}
           </h2>
@@ -27,7 +30,7 @@ export function CtaSection({ cta, whatsappNumber }: CtaSectionProps) {
             size="lg"
             className="mt-8 w-full md:w-auto"
           />
-        </div>
+        </Reveal>
       </Container>
     </section>
   )

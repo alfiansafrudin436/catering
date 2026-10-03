@@ -1,5 +1,6 @@
 export { Container } from './Container'
 export { ImagePicker } from './ImagePicker'
 export { PhotoPlaceholder } from './PhotoPlaceholder'
+export { Reveal } from './Reveal'
 export { SectionHeading } from './SectionHeading'
 export { WhatsAppButton } from './WhatsAppButton'

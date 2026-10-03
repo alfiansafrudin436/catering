@@ -8,7 +8,7 @@ function Input({ className, ...props }: InputProps) {
   return (
     <input
       className={cn(
-        'border-border bg-surface placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-primary h-10 w-full rounded-lg border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50',
+        'border-border bg-surface placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-primary h-10 w-full rounded-lg border px-3 text-sm transition-[color,background-color,border-color,box-shadow] duration-200 ease-out focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50',
         className,
       )}
       {...props}

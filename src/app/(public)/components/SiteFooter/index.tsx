@@ -17,7 +17,11 @@ export function SiteFooter() {
 
         <nav className="flex flex-col gap-3 text-sm">
           {NAV_ITEMS.map((item) => (
-            <a key={item.href} href={item.href} className="hover:text-primary transition-colors">
+            <a
+              key={item.href}
+              href={item.href}
+              className="hover:text-primary w-fit transition-[color,transform] duration-300 ease-out hover:translate-x-1 motion-reduce:hover:translate-x-0"
+            >
               {item.label}
             </a>
           ))}

@@ -33,6 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id">
       <body className={`${fraunces.variable} ${plusJakarta.variable} antialiased`}>
+        {/* Tanpa JavaScript, elemen beranimasi tetap harus terlihat. */}
+        <noscript>
+          <style>{'.reveal { opacity: 1; transform: none; filter: none; }'}</style>
+        </noscript>
         <Providers>{children}</Providers>
       </body>
     </html>
